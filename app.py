@@ -4,8 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn3
 import plotly.express as px
-import io
-import base64
 
 app = Flask(__name__)
 
@@ -29,20 +27,14 @@ def updateVennDiagram():
     anxious = df[df["Anxiety"] == 1]
     panicking = df[df["Panic Attacks"] == 1]
 
-    plt.figure()
-    venn3(subsets = [set(depressed.index), 
-                    set(anxious.index), 
-                    set(panicking.index)], 
-        set_labels = ("Depressed", "Anxious", "Having Panic Attacks"),
-        set_colors = ("orange", "purple", "green"),
-        alpha = 0.9)
-
-    plt.title("Conditions", fontsize = 16)
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
+    venn3(subsets=[set(depressed.index), set(anxious.index), set(panicking.index)], 
+          set_labels=("Depressed", "Anxious", "Having Panic Attacks"),
+          set_colors=("orange", "purple", "green"),
+          alpha=0.9)
+    
+    plt.title("Conditions", fontsize=16)
+    plt.savefig('venn_diagram.png')
     plt.close()
-    return base64.b64encode(buffer.getvalue()).decode()
 
 def updateBarChart():
     labels = ['Depressed', 'Anxious', 'Panic Attack', 'Depressed and Anxious', 'Depressed and Panic Attack', 'Anxious and Panic Attack', 'All Three', 'None']
@@ -85,14 +77,14 @@ def updateBarChart():
         len(none[none["Gender"] == "Female"])
     ]
 
-    plt.figure(figsize=(10, 6))
-    rects1 = plt.bar(x - width/2, male_counts, width, label='Male', color='gray')
-    rects2 = plt.bar(x + width/2, female_counts, width, label='Female', color='orange')
+    fig, ax = plt.subplots(figsize=(10, 6))
+    rects1 = ax.bar(x - width/2, male_counts, width, label='Male', color='gray')
+    rects2 = ax.bar(x + width/2, female_counts, width, label='Female', color='orange')
 
     def autolabel(rects):
         for rect in rects:
             height = rect.get_height()
-            plt.annotate('{}'.format(height),
+            ax.annotate('{}'.format(height),
                         xy=(rect.get_x() + rect.get_width() / 2, height),
                         xytext=(0, 3),  # 3 points vertical offset
                         textcoords="offset points",
@@ -101,16 +93,13 @@ def updateBarChart():
     autolabel(rects1)
     autolabel(rects2)
 
-    plt.ylabel('Number of people')
-    plt.title('Number of people with different combinations of mental states for men and women')
-    plt.xticks(x, labels, rotation=45, ha='right')
-    plt.legend()
-    
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
+    ax.set_ylabel('Number of people')
+    ax.set_title('Number of people with different combinations of mental states for men and women')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=45, ha='right')
+    ax.legend()
+    plt.savefig('bar_chart.png')
     plt.close()
-    return base64.b64encode(buffer.getvalue()).decode()
 
 def updatePieChart():
     female_data = df[df["Gender"] == "Female"]
@@ -129,12 +118,7 @@ def updatePieChart():
                     textinfo='percent+value',  
                     marker=dict(line=dict(color='#FFFFFF', width=2)),  
                     textfont_size=12) 
-    
-    buffer = io.BytesIO()
-    fig.write_image(buffer, format='png')
-    buffer.seek(0)
-    plt.close()
-    return base64.b64encode(buffer.getvalue()).decode()
+    fig.write_image("pie_chart.png")
 
 @app.route('/')
 def index():
@@ -142,11 +126,12 @@ def index():
 
 @app.route('/data', methods=['GET'])
 def get_data():
-    venn_diagram = updateVennDiagram()
-    bar_chart = updateBarChart()
-    pie_chart = updatePieChart()
-    return jsonify(venn_diagram=venn_diagram, bar_chart=bar_chart, pie_chart=pie_chart)
+    updateVennDiagram()
+    updateBarChart()
+    updatePieChart()
+    return jsonify(success=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
