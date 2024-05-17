@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Mental Health Dashboard</title>
+    <!-- Import D3.js library -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Import Plotly.js library -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Student Mental Health Dashboard</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <!-- Visualization 1: Bar chart showing number of people with different combinations of mental states for men and women -->
+                <div id="visualization1"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <!-- Visualization 2: Pie chart showing number of people undergoing and not undergoing treatment, by gender -->
+                <div id="visualization2"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <!-- Visualization 3:  Venn diagram showing overlap between different mental conditions -->
+                <div id="visualization3"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add your JavaScript code to fetch data and update visualizations -->
+    <script>
+        // Function to fetch data and update visualizations
+        function fetchDataAndVisualize() {
+            fetch('/data?drug=example')
+                .then(response => response.json())
+                .then(data => {
+                    // Update visualization 1
+                    updateVisualization1(data);
+
+                    // Update visualization 2
+                    updateVisualization2(data);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Function to update visualization 1 (using D3.js)
+        function updateVisualization1(data) {
+            // Remove previous visualization content
+            d3.select('#visualization1').selectAll('*').remove();
+
+            // Use D3.js to create or update visualization 1
+            // Example: create a bar chart
+            const svg = d3.select('#visualization1')
+                .append('svg')
+                .attr('width', 400)
+                .attr('height', 200);
+
+            // Example: bind data to bars
+            const bars = svg.selectAll('rect')
+                .data(data)
+                .enter()
+                .append('rect')
+                .attr('x', (d, i) => i * 50)
+                .attr('y', d => 200 - d.value)
+                .attr('width', 40)
+                .attr('height', d => d.value)
+                .attr('fill', 'steelblue');
+
+            // Example: add labels
+            svg.selectAll('text')
+                .data(data)
+                .enter()
+                .append('text')
+                .text(d => d.label)
+                .attr('x', (d, i) => i * 50 + 20)
+                .attr('y', 190)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '12px')
+                .attr('fill', 'white');
+        }
+
+        // Function to update visualization 2 (using Plotly.js)
+        function updateVisualization2(data) {
+            // Use Plotly.js to create or update visualization 2
+            // Example: create a pie chart
+            const labels = data.map(d => d.label);
+            const values = data.map(d => d.value);
+
+            const trace = {
+                labels: labels,
+                values: values,
+                type: 'pie'
+            };
+
+            const layout = {
+                title: 'Number of people undergoing and not undergoing treatment, by gender'
+            };
+
+            Plotly.newPlot('visualization2', [trace], layout);
+        }
+
+        // Function to update visualization 3 (using matplotlib_venn)
+        function updateVisualization3() {
+            // Data for Venn diagram
+            const sets = [
+                new Set(only_depressed.index),
+                new Set(only_anxious.index),
+                new Set(only_panicking.index)
+            ];
+
+            // Set labels for Venn diagram
+            const labels = ['Depressed', 'Anxious', 'Having Panic Attacks'];
+
+            // Set colors for Venn diagram
+            const colors = ['orange', 'purple', 'green'];
+
+            // Draw Venn diagram
+            const plt = require('matplotlib_venn');
+            plt.venn3(sets, {
+                set_labels: labels,
+                set_colors: colors,
+                alpha: 0.9
+            });
+
+            // Add title
+            plt.title("Conditions", fontsize=16);
+        }
+
+        // Fetch data and visualize on page load
+        document.addEventListener('DOMContentLoaded', fetchDataAndVisualize);
+    </script>
+</body>
+</html>
