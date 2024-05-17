@@ -1,4 +1,4 @@
-from flask import Flask, send_file, jsonify
+from flask import Flask, send_file, jsonify, request
 import pandas as pd
 
 app = Flask(__name__)
@@ -13,7 +13,18 @@ def index():
 
 @app.route('/data', methods=['GET'])
 def get_data():
-    return jsonify(mental_health_json)
+    chart_type = request.args.get('chart')  # Odczytaj parametr chart z zapytania
+
+    # Sprawdź, jaki typ wykresu został żądany
+    if chart_type == 'bar':
+        bar_chart_data = [
+            {"label": "Category 1", "value": 10},
+            {"label": "Category 2", "value": 20},
+            {"label": "Category 3", "value": 15}
+        ]
+        return jsonify(bar_chart_data)
+    else:
+        return jsonify(mental_health_json)
 
 if __name__ == '__main__':
     app.run(debug=True)
