@@ -16,8 +16,8 @@ df.columns = newnames
 
 # Przetwórz kolumny na format binarny
 def to_binary(d):
-    if d == "Yes"   : return 1
-    if d == "No"    : return 0
+    if d == "Yes": return 1
+    if d == "No": return 0
 
 df["Married"] = df["Married"].apply(to_binary)
 df["Depression"] = df["Depression"].apply(to_binary)
@@ -102,6 +102,11 @@ def updateBarChart():
 
 # Funkcja do aktualizacji wykresu kołowego
 def updatePieChart():
+    female_treated = df[(df["Gender"] == "Female") & (df["Treated"] == 1)].shape[0]
+    female_not_treated = df[(df["Gender"] == "Female") & (df["Treated"] == 0)].shape[0]
+    male_treated = df[(df["Gender"] == "Male") & (df["Treated"] == 1)].shape[0]
+    male_not_treated = df[(df["Gender"] == "Male") & (df["Treated"] == 0)].shape[0]
+
     df_plot = pd.DataFrame({
         'Gender': ['Female - Treated', 'Female - Not Treated', 'Male - Treated', 'Male - Not Treated'],
         'Count': [female_treated, female_not_treated, male_treated, male_not_treated]
@@ -122,3 +127,4 @@ def get_data():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
