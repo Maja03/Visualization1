@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Mental Health </title>
+    <title>Student Mental Health</title>
     <!-- Import D3.js library -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <!-- Import Plotly.js library -->
@@ -23,7 +23,7 @@
         <!-- Navigation bar for selecting visualization -->
         <div class="row mb-3">
             <div class="col">
-                <button class="btn btn-primary" onclick="showVennDiagram()"> Mental Conditions</button>
+                <button class="btn btn-primary" onclick="showVennDiagram()">Mental Conditions</button>
                 <button class="btn btn-primary" onclick="showBarChart()">Combinations of Mental States</button>
                 <button class="btn btn-primary" onclick="showPieChart()">Treatment or Not Treatment by Gender</button>
             </div>
@@ -32,125 +32,18 @@
             <div class="col">
                 <!-- Visualization 1: Venn diagram showing overlap between different mental conditions -->
                 <div id="visualization1"></div>
-
-                <script>
-                    // Function to update visualization 1 (using Venn.js)
-                    function updateVennDiagram() {
-                        // Data for Venn diagram
-                        const sets = [
-                            new Set(only_depressed.index),
-                            new Set(only_anxious.index),
-                            new Set(only_panicking.index)
-                        ];
-
-                        // Set labels for Venn diagram
-                        const labels = ['Depressed', 'Anxious', 'Having Panic Attacks'];
-
-                        // Set colors for Venn diagram
-                        const colors = ['orange', 'purple', 'green'];
-
-                        // Draw Venn diagram
-                        const vennDiagram = VennDiagram(sets, {
-                            setLabels: labels,
-                            setColors: colors,
-                            alpha: 0.9
-                        });
-
-                        // Add title
-                        vennDiagram.title("Conditions", { fontSize: 16 });
-                    }
-
-                    // Fetch data and visualize Venn diagram on page load
-                    document.addEventListener('DOMContentLoaded', updateVennDiagram);
-                </script>
             </div>
         </div>
         <div class="row">
             <div class="col">
                 <!-- Visualization 2: Bar chart showing number of people with different combinations of mental states for men and women -->
-                <div id="visualization2" style="display: none;"></div>
-
-                <script>
-                    // Function to update visualization 2 (using D3.js)
-                    function updateBarChart(data) {
-                        // Remove previous visualization content
-                        d3.select('#visualization2').selectAll('*').remove();
-
-                        // Use D3.js to create or update visualization 2
-                        // Example: create a bar chart
-                        const svg = d3.select('#visualization2')
-                            .append('svg')
-                            .attr('width', 400)
-                            .attr('height', 200);
-
-                        // Example: bind data to bars
-                        const bars = svg.selectAll('rect')
-                            .data(data)
-                            .enter()
-                            .append('rect')
-                            .attr('x', (d, i) => i * 50)
-                            .attr('y', d => 200 - d.value)
-                            .attr('width', 40)
-                            .attr('height', d => d.value)
-                            .attr('fill', 'steelblue');
-
-                        // Example: add labels
-                        svg.selectAll('text')
-                            .data(data)
-                            .enter()
-                            .append('text')
-                            .text(d => d.label)
-                            .attr('x', (d, i) => i * 50 + 20)
-                            .attr('y', 190)
-                            .attr('text-anchor', 'middle')
-                            .attr('font-size', '12px')
-                            .attr('fill', 'white');
-                    }
-
-                    // Fetch data and visualize Bar Chart on page load
-                    document.addEventListener('DOMContentLoaded', function () {
-                        fetch('/data?chart=bar')
-                            .then(response => response.json())
-                            .then(data => updateBarChart(data))
-                            .catch(error => console.error('Error:', error));
-                    });
-                </script>
+                <div id="visualization2"></div>
             </div>
         </div>
         <div class="row">
             <div class="col">
                 <!-- Visualization 3: Pie chart showing number of people undergoing and not undergoing treatment, by gender -->
-                <div id="visualization3" style="display: none;"></div>
-
-                <script>
-                    // Function to update visualization 3 (using Plotly.js)
-                    function updatePieChart(data) {
-                        // Use Plotly.js to create or update visualization 3
-                        // Example: create a pie chart
-                        const labels = data.map(d => d.label);
-                        const values = data.map(d => d.value);
-
-                        const trace = {
-                            labels: labels,
-                            values: values,
-                            type: 'pie'
-                        };
-
-                        const layout = {
-                            title: 'Number of people undergoing and not undergoing treatment, by gender'
-                        };
-
-                        Plotly.newPlot('visualization3', [trace], layout);
-                    }
-
-                    // Fetch data and visualize Pie Chart on page load
-                    document.addEventListener('DOMContentLoaded', function () {
-                        fetch('/data?chart=pie')
-                            .then(response => response.json())
-                            .then(data => updatePieChart(data))
-                            .catch(error => console.error('Error:', error));
-                    });
-                </script>
+                <div id="visualization3"></div>
             </div>
         </div>
     </div>
@@ -179,4 +72,5 @@
     </script>
 </body>
 </html>
+
 
