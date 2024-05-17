@@ -25,6 +25,20 @@ df["Anxiety"] = df["Anxiety"].apply(to_binary)
 df["Panic Attacks"] = df["Panic Attacks"].apply(to_binary)
 df["Treated"] = df["Treated"].apply(to_binary)
 
+@app.route('/')
+def index():
+    return send_file('index.html')
+
+@app.route('/data', methods=['GET'])
+def get_data():
+    updateVennDiagram()
+    updateBarChart()
+    updatePieChart()
+    return jsonify(success=True)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 # Funkcja do aktualizacji wizualizacji Vennowskiego diagramu
 def updateVennDiagram():
     depressed = df[df["Depression"] == 1]
@@ -113,7 +127,6 @@ def updatePieChart():
     })
     fig = px.pie(df_plot, values='Count', names='Gender', title='Number of people undergoing and not undergoing treatment, by gender')
     fig.show()
-
 @app.route('/')
 def index():
     return send_file('index.html')
