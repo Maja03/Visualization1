@@ -1,11 +1,11 @@
-from flask import Flask, render_template, jsonify, request
-import json
+import pandas as pd
+from flask import Flask, render_template, jsonify
+
+
+mental_health_data = pd.read_csv('Student Mental health.csv')
+mental_health_json = mental_health_data.to_json(orient='records')
 
 app = Flask(__name__)
-
-# Load mental health data
-with open('Student Mental health.csv') as f:
-    mental_health_data = json.load(f)
 
 @app.route('/')
 def index():
@@ -13,7 +13,7 @@ def index():
 
 @app.route('/data', methods=['GET'])
 def get_data():
-    return jsonify(mental_health_data)
+    return jsonify(mental_health_json)
 
 if __name__ == '__main__':
     app.run(debug=True)
