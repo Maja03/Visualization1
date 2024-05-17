@@ -4,7 +4,7 @@ import json
 app = Flask(__name__)
 
 # Load mental health data
-with open('static/data/mental_health_data.json') as f:
+with open('Student Mental health.csv') as f:
     mental_health_data = json.load(f)
 
 @app.route('/')
