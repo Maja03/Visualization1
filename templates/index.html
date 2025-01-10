@@ -3,17 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Mental Health</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Student Mental Health Visualizations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Student Mental Health Visualizations</h1>
-        <div id="visualization1"></div>
-        <div id="visualization2"></div>
-        <div id="visualization3"></div>
+    <h1>Student Mental Health Data Visualizations</h1>
+    
+    <div>
+        <h2>Venn Diagram</h2>
+        <img src="{{ url_for('static', filename='venn_plot.png') }}" alt="Venn Diagram">
     </div>
-    <script src="/static/js/main.js"></script>
+    
+    <div>
+        <h2>Pie Charts</h2>
+        <div>
+            <h3>Conditions Among Males</h3>
+            <img src="{{ url_for('static', filename='pie_chart.png') }}" alt="Pie Chart - Males">
+        </div>
+        <div>
+            <h3>Conditions Among Females</h3>
+            <img src="{{ url_for('static', filename='pie_chart.png') }}" alt="Pie Chart - Females">
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
