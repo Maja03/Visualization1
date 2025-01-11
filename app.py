@@ -2,104 +2,87 @@ from flask import Flask, render_template
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn3
-import plotly.express as px
-import plotly.io as pio
 
 app = Flask(__name__)
 
-# Example DataFrame (replace with your actual data loading logic)
-data = {
-    "Gender": ["Male", "Female", "Male", "Female", "Male"],
-    "Depressed": [1, 1, 0, 0, 1],
-    "Anxious": [1, 0, 1, 0, 1],
-    "Panicking": [0, 1, 1, 0, 0],
-}
-df = pd.DataFrame(data)
+# Load the data
+df = pd.read_csv('Student Mental health.csv')
 
-# Subsets
-depressed = df[df["Depressed"] == 1]
-anxious = df[df["Anxious"] == 1]
-panicking = df[df["Panicking"] == 1]
-depressed_anxious = depressed[depressed["Anxious"] == 1]
-depressed_panicking = depressed[depressed["Panicking"] == 1]
-anxious_panicking = anxious[anxious["Panicking"] == 1]
-all_three = depressed[depressed["Anxious"] & depressed["Panicking"]]
+# Rename columns
+newnames = ["Timestamp", "Gender", "Age", "Major", "Year", "CGPA", "Married", "Depression", "Anxiety", "Panic Attacks", "Treated"]
+df.columns = newnames
 
-# Function to generate Venn Diagram
-def create_venn_diagram():
+# Convert "Yes"/"No" to 1/0
+def to_binary(d):
+    return 1 if d == "Yes" else 0
+
+df["Married"] = df["Married"].apply(to_binary)
+df["Depression"] = df["Depression"].apply(to_binary)
+df["Anxiety"] = df["Anxiety"].apply(to_binary)
+df["Panic Attacks"] = df["Panic Attacks"].apply(to_binary)
+df["Treated"] = df["Treated"].apply(to_binary)
+df["Year"] = df["Year"].str[-1:]
+
+# Create subsets for conditions
+depressed = df[df["Depression"] == 1]
+anxious = df[df["Anxiety"] == 1]
+panicking = df[df["Panic Attacks"] == 1]
+
+# Combined conditions
+depressed_anxious = df[(df["Depression"] == 1) & (df["Anxiety"] == 1)]
+depressed_panicking = df[(df["Depression"] == 1) & (df["Panic Attacks"] == 1)]
+anxious_panicking = df[(df["Anxiety"] == 1) & (df["Panic Attacks"] == 1)]
+all_three = df[(df["Depression"] == 1) & (df["Anxiety"] == 1) & (df["Panic Attacks"] == 1)]
+
+# Generate Venn Diagram
+def create_venn():
     plt.figure(figsize=(8, 6))
-    venn = venn3(
-        subsets=(
-            len(depressed),
-            len(anxious),
-            len(depressed_anxious),
-            len(panicking),
-            len(depressed_panicking),
-            len(anxious_panicking),
-            len(all_three),
-        ),
-        set_labels=("Depressed", "Anxious", "Panicking"),
+    venn3(
+        subsets=[set(depressed.index), set(anxious.index), set(panicking.index)],
+        set_labels=("Depressed", "Anxious", "Having Panic Attacks"),
+        set_colors=("orange", "purple", "green"),
+        alpha=0.9
     )
-    plt.title("Venn Diagram of Mental Health Conditions")
+    plt.title("Conditions", fontsize=16)
     plt.savefig("static/venn_plot.png")
     plt.close()
 
-# Function to generate interactive charts with Plotly
-def create_interactive_charts():
-    categories = [
-        "Depressed",
-        "Anxious",
-        "Panicking",
-        "Depressed and Anxious",
-        "Depressed and Panicking",
-        "Anxious and Panicking",
-        "All Three",
-    ]
-    subsets = [
-        depressed,
-        anxious,
-        panicking,
-        depressed_anxious,
-        depressed_panicking,
-        anxious_panicking,
-        all_three,
-    ]
+# Generate Pie Charts
+def create_pie_charts():
+    categories = ['Depressed', 'Anxious', 'Panicking', 'Depressed and Anxious', 'Depressed and Panicking', 'Anxious and Panicking', 'All Three']
+    subsets = [depressed, anxious, panicking, depressed_anxious, depressed_panicking, anxious_panicking, all_three]
 
     male_counts = [len(subset[subset["Gender"] == "Male"]) for subset in subsets]
     female_counts = [len(subset[subset["Gender"] == "Female"]) for subset in subsets]
 
     # Males
-    fig_males = px.pie(
-        names=categories,
-        values=male_counts,
-        title="Conditions Among Males",
-        color_discrete_sequence=px.colors.qualitative.Set3,
-    )
-    pio.write_html(fig_males, file="templates/pie_chart_males.html", auto_open=False)
+    plt.figure(figsize=(8, 6))
+    plt.pie(male_counts, labels=categories, autopct='%1.1f%%', startangle=90)
+    plt.title('Conditions Among Males')
+    plt.savefig("static/pie_chart_males.png")
+    plt.close()
 
     # Females
-    fig_females = px.pie(
-        names=categories,
-        values=female_counts,
-        title="Conditions Among Females",
-        color_discrete_sequence=px.colors.qualitative.Set3,
-    )
-    pio.write_html(fig_females, file="templates/pie_chart_females.html", auto_open=False)
+    plt.figure(figsize=(8, 6))
+    plt.pie(female_counts, labels=categories, autopct='%1.1f%%', startangle=90)
+    plt.title('Conditions Among Females')
+    plt.savefig("static/pie_chart_females.png")
+    plt.close()
 
-@app.route("/")
-def index():
-    create_venn_diagram()
-    return render_template("index.html")
+@app.route('/')
+def home():
+    create_venn()
+    return render_template('index.html', chart_type="venn")
 
-@app.route("/males")
+@app.route('/males')
 def males():
-    create_interactive_charts()
-    return render_template("pie_chart_males.html")
+    create_pie_charts()
+    return render_template('index.html', chart_type="males")
 
-@app.route("/females")
+@app.route('/females')
 def females():
-    create_interactive_charts()
-    return render_template("pie_chart_females.html")
+    create_pie_charts()
+    return render_template('index.html', chart_type="females")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
