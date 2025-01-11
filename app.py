@@ -1,9 +1,7 @@
 from flask import Flask, render_template
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 from matplotlib_venn import venn3
-import random
 
 app = Flask(__name__)
 
@@ -43,7 +41,12 @@ df["Condition"] = has_smtn
 depressed = df[(df["Depression"] == 1)]
 anxious = df[(df["Anxiety"] == 1)]
 panicking = df[(df["Panic Attacks"] == 1)]
-has_condition = pd.concat([depressed, anxious, panicking]).drop_duplicates()
+
+# Combined conditions
+depressed_anxious = df[(df["Depression"] == 1) & (df["Anxiety"] == 1)]
+depressed_panicking = df[(df["Depression"] == 1) & (df["Panic Attacks"] == 1)]
+anxious_panicking = df[(df["Anxiety"] == 1) & (df["Panic Attacks"] == 1)]
+all_three = df[(df["Depression"] == 1) & (df["Anxiety"] == 1) & (df["Panic Attacks"] == 1)]
 
 # Venn diagram plot
 def create_venn():
@@ -58,8 +61,8 @@ def create_venn():
 # Generate the pie charts
 def create_pie_charts():
     categories = ['Depressed', 'Anxious', 'Panicking', 'Depressed and Anxious', 'Depressed and Panicking', 'Anxious and Panicking', 'All Three']
-    male_counts = [len(df[df["Gender"] == "Male"][condition]) for condition in [depressed, anxious, panicking, depressed_anxious, depressed_panicking, anxious_panicking, all_three]]
-    female_counts = [len(df[df["Gender"] == "Female"][condition]) for condition in [depressed, anxious, panicking, depressed_anxious, depressed_panicking, anxious_panicking, all_three]]
+    male_counts = [len(df[(df["Gender"] == "Male") & condition.index.isin(df.index)]) for condition in [depressed, anxious, panicking, depressed_anxious, depressed_panicking, anxious_panicking, all_three]]
+    female_counts = [len(df[(df["Gender"] == "Female") & condition.index.isin(df.index)]) for condition in [depressed, anxious, panicking, depressed_anxious, depressed_panicking, anxious_panicking, all_three]]
 
     fig, axs = plt.subplots(2, 1, figsize=(12, 8))
     axs[0].pie(male_counts, labels=categories, autopct='%1.1f%%')
