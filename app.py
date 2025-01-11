@@ -34,7 +34,7 @@ depressed_panicking = df[(df["Depression"] == 1) & (df["Panic Attacks"] == 1)]
 anxious_panicking = df[(df["Anxiety"] == 1) & (df["Panic Attacks"] == 1)]
 all_three = df[(df["Depression"] == 1) & (df["Anxiety"] == 1) & (df["Panic Attacks"] == 1)]
 
-# Venn diagram plot
+# Generate Venn Diagram
 def create_venn():
     plt.figure(figsize=(8, 6))
     venn3(
@@ -47,7 +47,7 @@ def create_venn():
     plt.savefig("static/venn_plot.png")
     plt.close()
 
-# Generate pie charts
+# Generate Pie Charts
 def create_pie_charts():
     categories = ['Depressed', 'Anxious', 'Panicking', 'Depressed and Anxious', 'Depressed and Panicking', 'Anxious and Panicking', 'All Three']
     subsets = [depressed, anxious, panicking, depressed_anxious, depressed_panicking, anxious_panicking, all_three]
@@ -55,21 +55,34 @@ def create_pie_charts():
     male_counts = [len(subset[subset["Gender"] == "Male"]) for subset in subsets]
     female_counts = [len(subset[subset["Gender"] == "Female"]) for subset in subsets]
 
-    fig, axs = plt.subplots(2, 1, figsize=(12, 8))
-    axs[0].pie(male_counts, labels=categories, autopct='%1.1f%%', startangle=90)
-    axs[0].set_title('Conditions Among Males')
-    axs[1].pie(female_counts, labels=categories, autopct='%1.1f%%', startangle=90)
-    axs[1].set_title('Conditions Among Females')
+    # Males
+    plt.figure(figsize=(8, 6))
+    plt.pie(male_counts, labels=categories, autopct='%1.1f%%', startangle=90)
+    plt.title('Conditions Among Males')
+    plt.savefig("static/pie_chart_males.png")
+    plt.close()
 
-    plt.tight_layout()
-    plt.savefig("static/pie_chart.png")
+    # Females
+    plt.figure(figsize=(8, 6))
+    plt.pie(female_counts, labels=categories, autopct='%1.1f%%', startangle=90)
+    plt.title('Conditions Among Females')
+    plt.savefig("static/pie_chart_females.png")
     plt.close()
 
 @app.route('/')
-def index():
+def home():
     create_venn()
+    return render_template('index.html', chart_type="venn")
+
+@app.route('/males')
+def males():
     create_pie_charts()
-    return render_template('index.html')
+    return render_template('index.html', chart_type="males")
+
+@app.route('/females')
+def females():
+    create_pie_charts()
+    return render_template('index.html', chart_type="females")
 
 if __name__ == '__main__':
     app.run(debug=True)
