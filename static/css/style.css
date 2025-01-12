@@ -1,19 +1,64 @@
+/* Basic styling for the page */
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    width: 80%;
-    margin: auto;
+    margin: 20px;
+    background-color: #f4f4f9;
 }
 
 h1 {
     text-align: center;
-    margin-bottom: 20px;
+    color: #333;
+    font-size: 2.5rem;
 }
 
-#visualization1, #visualization2, #visualization3 {
+h2 {
+    color: #555;
+    text-align: center;
+    font-size: 1.8rem;
     margin-top: 20px;
+}
+
+/* Styling for buttons */
+.button-container {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.button-container button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 18px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.button-container button:hover {
+    background-color: #45a049;
+}
+
+/* Styling for the images */
+.chart-container {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.chart-container div {
+    display: inline-block;
+    margin: 20px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .button-container button {
+        width: 100%;
+        padding: 12px 0;
+        font-size: 16px;
+    }
 }

@@ -1,7 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib_venn import venn3
 
 app = Flask(__name__)
 
@@ -34,19 +32,6 @@ depressed_panicking = df[(df["Depression"] == 1) & (df["Panic Attacks"] == 1)]
 anxious_panicking = df[(df["Anxiety"] == 1) & (df["Panic Attacks"] == 1)]
 all_three = df[(df["Depression"] == 1) & (df["Anxiety"] == 1) & (df["Panic Attacks"] == 1)]
 
-# Generate Venn Diagram
-def create_venn():
-    plt.figure(figsize=(8, 6))
-    venn3(
-        subsets=[set(depressed.index), set(anxious.index), set(panicking.index)],
-        set_labels=("Depressed", "Anxious", "Having Panic Attacks"),
-        set_colors=("orange", "purple", "green"),
-        alpha=0.9
-    )
-    plt.title("Conditions", fontsize=16)
-    plt.savefig("static/venn_plot.png")
-    plt.close()
-
 # Generate Pie Charts
 def create_pie_charts():
     categories = ['Depressed', 'Anxious', 'Panicking', 'Depressed and Anxious', 'Depressed and Panicking', 'Anxious and Panicking', 'All Three']
@@ -55,34 +40,40 @@ def create_pie_charts():
     male_counts = [len(subset[subset["Gender"] == "Male"]) for subset in subsets]
     female_counts = [len(subset[subset["Gender"] == "Female"]) for subset in subsets]
 
-    # Males
-    plt.figure(figsize=(8, 6))
-    plt.pie(male_counts, labels=categories, autopct='%1.1f%%', startangle=90)
-    plt.title('Conditions Among Males')
-    plt.savefig("static/pie_chart_males.png")
-    plt.close()
-
-    # Females
-    plt.figure(figsize=(8, 6))
-    plt.pie(female_counts, labels=categories, autopct='%1.1f%%', startangle=90)
-    plt.title('Conditions Among Females')
-    plt.savefig("static/pie_chart_females.png")
-    plt.close()
+    return {'male_counts': male_counts, 'female_counts': female_counts, 'categories': categories}
 
 @app.route('/')
 def home():
-    create_venn()
     return render_template('index.html', chart_type="venn")
 
 @app.route('/males')
 def males():
-    create_pie_charts()
     return render_template('index.html', chart_type="males")
 
 @app.route('/females')
 def females():
-    create_pie_charts()
     return render_template('index.html', chart_type="females")
+
+@app.route('/data')
+def get_data():
+    # Get counts for the pie charts
+    pie_data = create_pie_charts()
+    
+    # Prepare data for D3.js
+    venn_data = {
+        'depressed': len(depressed),
+        'anxious': len(anxious),
+        'panicking': len(panicking),
+        'depressed_anxious': len(depressed_anxious),
+        'depressed_panicking': len(depressed_panicking),
+        'anxious_panicking': len(anxious_panicking),
+        'all_three': len(all_three),
+    }
+
+    return jsonify({
+        'venn': venn_data,
+        'pie': pie_data
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

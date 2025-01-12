@@ -3,51 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Mental Health</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-        }
-        h1 {
-            color: #333;
-        }
-        .buttons {
-            margin: 20px 0;
-        }
-        .buttons a {
-            text-decoration: none;
-            background-color: #007BFF;
-            color: white;
-            padding: 10px 20px;
-            margin: 5px;
-            border-radius: 5px;
-            display: inline-block;
-        }
-        .buttons a:hover {
-            background-color: #0056b3;
-        }
-        img {
-            margin-top: 20px;
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
+    <title>Mental Health Data Visualization</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Student Mental Health</h1>
-    <div class="buttons">
-        <a href="/">Venn Diagram</a>
-        <a href="/males">Conditions Among Males</a>
-        <a href="/females">Conditions Among Females</a>
+    <h1>Mental Health Conditions Visualization</h1>
+
+    <!-- Button navigation for different visualizations -->
+    <div class="button-container">
+        <button onclick="window.location.href='/'">Venn Diagram</button>
+        <button onclick="window.location.href='/males'">Pie Chart (Males)</button>
+        <button onclick="window.location.href='/females'">Pie Chart (Females)</button>
     </div>
+
+    <hr>
+
+    <!-- Display Venn Diagram -->
     {% if chart_type == "venn" %}
-        <img src="/static/venn_plot.png" alt="Venn Diagram">
-    {% elif chart_type == "males" %}
-        <img src="/static/pie_chart_males.png" alt="Pie Chart - Males">
-    {% elif chart_type == "females" %}
-        <img src="/static/pie_chart_females.png" alt="Pie Chart - Females">
+    <div class="chart-container">
+        <h2>Venn Diagram of Conditions</h2>
+        <div id="venn-diagram"></div>
+    </div>
     {% endif %}
+
+    <!-- Display Pie Chart for Males -->
+    {% if chart_type == "males" %}
+    <div class="chart-container">
+        <h2>Pie Chart for Males</h2>
+        <div id="males-pie-chart"></div>
+    </div>
+    {% endif %}
+
+    <!-- Display Pie Chart for Females -->
+    {% if chart_type == "females" %}
+    <div class="chart-container">
+        <h2>Pie Chart for Females</h2>
+        <div id="females-pie-chart"></div>
+    </div>
+    {% endif %}
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
