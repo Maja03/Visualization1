@@ -70,6 +70,7 @@ def get_data():
         'all_three': len(all_three),
     }
 
+
     return jsonify({
         'venn': venn_data,
         'pie': pie_data
