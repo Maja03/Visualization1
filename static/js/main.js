@@ -3,155 +3,174 @@ fetch('/data')
     .then(data => {
         console.log(data);
 
-        // Create Pie Chart for Male data
-        createPieChart('males-pie-chart', data.pie.male_counts, data.pie.categories, "Males");
-
-        // Create Pie Chart for Female data
-        createPieChart('females-pie-chart', data.pie.female_counts, data.pie.categories, "Females");
-
-        // Create Venn Diagram
-        createVennDiagram(data.venn);
+        // Render charts based on chart type
+        if (document.querySelector('#males-pie-chart')) {
+            createPieChart('males-pie-chart', data.pie.male_counts, data.pie.categories, "Males");
+        }
+        if (document.querySelector('#females-pie-chart')) {
+            createPieChart('females-pie-chart', data.pie.female_counts, data.pie.categories, "Females");
+        }
+        if (document.querySelector('#venn-diagram')) {
+            createVennDiagram(data.venn);
+        }
     });
 
-function createPieChart(containerId, counts, categories, title) {
-    const width = 450, height = 450;
-    const radius = Math.min(width, height) / 2;
-
-    const svg = d3.select(`#${containerId}`)
-        .append('svg')
-        .attr('width', width + 200) // Adjust for legend space
-        .attr('height', height)
-        .append('g')
-        .attr('transform', `translate(${width / 2}, ${height / 2})`);
-
-    const pie = d3.pie().value(d => d.value);
-    const arc = d3.arc().outerRadius(radius).innerRadius(0);
-
-    const color = d3.scaleOrdinal(d3.schemeSet3);
-
-    const data = categories.map((label, i) => ({
-        label: label,
-        value: counts[i]
-    }));
-
-    const arcData = pie(data);
-
-    // Draw slices
-    svg.selectAll('path')
-        .data(arcData)
-        .enter()
-        .append('path')
-        .attr('d', arc)
-        .attr('fill', (d, i) => color(i))
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 2);
-
-    // Add slice labels
-    svg.selectAll('text')
-        .data(arcData)
-        .enter()
-        .append('text')
-        .attr('transform', d => `translate(${arc.centroid(d)})`)
-        .attr('dy', '.35em')
-        .attr('text-anchor', 'middle')
-        .style('font-size', '10px')
-        .style('fill', '#000')
-        .text(d => `${d.data.value}`);
-
-    // Add legend with percentage only (no numbers)
-    const legend = d3.select(`#${containerId}`)
-        .append('svg')
-        .attr('width', 200)
-        .attr('height', height)
-        .append('g')
-        .attr('transform', `translate(10, 20)`); // Move legend slightly to the left
-
-    legend.selectAll('rect')
-        .data(data)
-        .enter()
-        .append('rect')
-        .attr('x', 0)
-        .attr('y', (d, i) => i * 20)
-        .attr('width', 15)
-        .attr('height', 15)
-        .attr('fill', (d, i) => color(i));
-
-    legend.selectAll('text')
-        .data(data)
-        .enter()
-        .append('text')
-        .attr('x', 20)
-        .attr('y', (d, i) => i * 20 + 12)
-        .style('font-size', '12px')
-        .attr('fill', '#333')
-        .text(d => `${d.label}: ${((d.value / d3.sum(counts)) * 100).toFixed(2)}%`); // Only percentage
-
-    // Add chart title
-    svg.append('text')
-        .attr('x', 0)
-        .attr('y', -radius - 20)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '16px')
-        .style('font-weight', 'bold')
-        .text(`Pie Chart for ${title}`);
-}
+    function createPieChart(containerId, counts, categories, title) {
+        const width = 550, height = 550;
+        const radius = Math.min(width, height) / 2;
+    
+        // Log input data to ensure correctness
+        console.log("Categories (Frontend):", categories);
+        console.log("Counts (Frontend):", counts);
+    
+        if (categories.length !== counts.length) {
+            console.error("Mismatch between categories and counts!");
+            return;
+        }
+    
+        const svg = d3.select(`#${containerId}`)
+            .append('svg')
+            .attr('width', width + 200)
+            .attr('height', height + 100)
+            .append('g')
+            .attr('transform', `translate(${width / 2}, ${height / 2})`);
+    
+        const pie = d3.pie().value(d => d.value);
+        const arc = d3.arc().outerRadius(radius).innerRadius(0);
+    
+        const color = d3.scaleOrdinal(d3.schemeCategory10);
+    
+        const total = counts.reduce((sum, count) => sum + count, 0);
+        const data = categories.map((label, i) => ({
+            label: label || "Unknown", // Handle missing labels
+            value: counts[i] || 0, // Handle missing counts
+            percentage: counts[i] ? ((counts[i] / total) * 100).toFixed(2) : 0
+        }));
+    
+        // Ensure data alignment
+        console.log("Processed Data for Legend and Chart:", data);
+    
+        const arcData = pie(data);
+    
+        // Draw pie slices
+        svg.selectAll('path')
+            .data(arcData)
+            .enter()
+            .append('path')
+            .attr('d', arc)
+            .attr('fill', (d, i) => color(i))
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 2);
+    
+        // Add percentage labels inside the pie slices
+        svg.selectAll('text')
+            .data(arcData)
+            .enter()
+            .append('text')
+            .attr('transform', d => `translate(${arc.centroid(d)})`)
+            .attr('dy', '.35em')
+            .attr('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .style('fill', '#000')
+            .text(d => `${d.data.percentage}%`);
+    
+        // Add legend title
+        const legendContainer = d3.select(`#${containerId}`)
+            .append('svg')
+            .attr('width', 300)
+            .attr('height', height)
+            .append('g')
+            .attr('transform', `translate(20, 20)`);
+    
+        legendContainer.append('text')
+            .attr('x', 0)
+            .attr('y', 0)
+            .style('font-size', '14px')
+            .style('font-weight', 'bold')
+            .text("Legend (Number of People)");
+    
+        legendContainer.selectAll('rect')
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr('x', 0)
+            .attr('y', (d, i) => i * 20 + 20)
+            .attr('width', 15)
+            .attr('height', 15)
+            .attr('fill', (d, i) => color(i));
+    
+        legendContainer.selectAll('text')
+            .data(data)
+            .enter()
+            .append('text')
+            .attr('x', 20)
+            .attr('y', (d, i) => i * 20 + 33)
+            .style('font-size', '12px')
+            .attr('fill', '#333')
+            .text(d => `${d.label}: ${d.value} people`);
+    
+        console.log("Legend for", title, data.map(d => `${d.label}: ${d.value} people`));
+    }
+    
 
 function createVennDiagram(data) {
-    const width = 500, height = 500;
+    const width = 700, height = 700;
     const svg = d3.select("#venn-diagram")
         .append('svg')
         .attr('width', width)
         .attr('height', height);
 
-    const circleRadius = 120; // Increased radius for better clarity
-    const circlePadding = 50; // Padding between the circles to make room for the labels and intersections
-
     const circles = [
-        { cx: 160, cy: 200, r: circleRadius, fill: "red", label: "Depressed", count: data.depressed },
-        { cx: 340, cy: 200, r: circleRadius, fill: "blue", label: "Anxious", count: data.anxious },
-        { cx: 250, cy: 350, r: circleRadius, fill: "green", label: "Panic Attack", count: data.panicking }
+        { cx: 200, cy: 250, r: 150, color: "orange", label: "Depressed", value: data.depressed, labelX: 200, labelY: 90 },
+        { cx: 400, cy: 250, r: 150, color: "purple", label: "Anxious", value: data.anxious, labelX: 400, labelY: 90 },
+        { cx: 300, cy: 400, r: 150, color: "green", label: "Panic Attacks", value: data.panicking, labelX: 300, labelY: 580 }
     ];
 
-    // Draw the circles for each condition
+    // Draw the circles
     circles.forEach(circle => {
         svg.append('circle')
             .attr('cx', circle.cx)
             .attr('cy', circle.cy)
             .attr('r', circle.r)
-            .attr('fill', circle.fill)
-            .attr('opacity', 0.5) // Make circles semi-transparent
+            .attr('fill', circle.color)
+            .attr('opacity', 0.5)
             .attr('stroke', '#000')
-            .attr('stroke-width', 2);
+            .attr('stroke-width', 1.5);
 
+        // Add labels outside the circles
+        svg.append('text')
+            .attr('x', circle.labelX)
+            .attr('y', circle.labelY)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '16px')
+            .style('font-weight', 'bold')
+            .text(circle.label);
+
+        // Add values inside the circles
         svg.append('text')
             .attr('x', circle.cx)
-            .attr('y', circle.cy - circle.r - 10) // Place label above the circle
+            .attr('y', circle.cy + 10)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .text(circle.value);
+    });
+
+    // Add overlap areas
+    const overlaps = [
+        { x: 300, y: 230, value: data.depressed_anxious },
+        { x: 350, y: 325, value: data.anxious_panicking },
+        { x: 250, y: 325, value: data.depressed_panicking },
+        { x: 300, y: 300, value: data.all_three }
+    ];
+
+    overlaps.forEach(overlap => {
+        svg.append('text')
+            .attr('x', overlap.x)
+            .attr('y', overlap.y)
             .attr('text-anchor', 'middle')
             .style('font-size', '14px')
             .style('font-weight', 'bold')
-            .style('fill', '#333')
-            .text(circle.label);
-
-        svg.append('text')
-            .attr('x', circle.cx)
-            .attr('y', circle.cy)
-            .attr('dy', 20)
-            .attr('text-anchor', 'middle')
-            .style('font-size', '14px') // Increased font size for count
-            .style('fill', '#333')
-            .text(circle.count);
+            .style('fill', '#000')
+            .text(overlap.value);
     });
-
-    // Remove the intersection in the center
-    // No intersection label in the center, keeping only the circle counts
-
-    // Ensure the title for "Panic Attack" is under the green circle
-    svg.append('text')
-        .attr('x', 250)
-        .attr('y', 350 + circleRadius + 15) // Title positioned below the green circle
-        .attr('text-anchor', 'middle')
-        .style('font-size', '14px')
-        .style('font-weight', 'bold')
-        .style('fill', '#333')
-        .text("Panic Attack");
 }

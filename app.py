@@ -24,7 +24,7 @@ df["Year"] = df["Year"].str[-1:]
 # Create subsets for conditions
 depressed = df[df["Depression"] == 1]
 anxious = df[df["Anxiety"] == 1]
-panicking = df[df["Panic Attacks"] == 1]
+panic_attacks = df[df["Panic Attacks"] == 1]
 
 # Combined conditions
 depressed_anxious = df[(df["Depression"] == 1) & (df["Anxiety"] == 1)]
@@ -34,13 +34,22 @@ all_three = df[(df["Depression"] == 1) & (df["Anxiety"] == 1) & (df["Panic Attac
 
 # Generate Pie Charts
 def create_pie_charts():
-    categories = ['Depressed', 'Anxious', 'Panicking', 'Depressed and Anxious', 'Depressed and Panicking', 'Anxious and Panicking', 'All Three']
-    subsets = [depressed, anxious, panicking, depressed_anxious, depressed_panicking, anxious_panicking, all_three]
+    categories = ['Depressed', 'Anxious', 'Panic Attacks', 'Depressed and Anxious', 'Depressed and Panic Attacks', 'Anxious and Panic Attacks', 'All Three']
+    subsets = [
+        depressed, anxious, panic_attacks,
+        depressed_anxious, depressed_panicking, anxious_panicking, all_three
+    ]
 
     male_counts = [len(subset[subset["Gender"] == "Male"]) for subset in subsets]
     female_counts = [len(subset[subset["Gender"] == "Female"]) for subset in subsets]
 
+    # Debugging output to ensure data consistency
+    print("Categories:", categories)
+    print("Male Counts:", male_counts)
+    print("Female Counts:", female_counts)
+
     return {'male_counts': male_counts, 'female_counts': female_counts, 'categories': categories}
+
 
 @app.route('/')
 def home():
@@ -56,20 +65,17 @@ def females():
 
 @app.route('/data')
 def get_data():
-    # Get counts for the pie charts
-    pie_data = create_pie_charts()
-    
-    # Prepare data for D3.js
     venn_data = {
-        'depressed': len(depressed),
-        'anxious': len(anxious),
-        'panicking': len(panicking),
-        'depressed_anxious': len(depressed_anxious),
-        'depressed_panicking': len(depressed_panicking),
-        'anxious_panicking': len(anxious_panicking),
+        'depressed': len(depressed) - len(depressed_anxious) - len(depressed_panicking) + len(all_three),
+        'anxious': len(anxious) - len(depressed_anxious) - len(anxious_panicking) + len(all_three),
+        'panicking': len(panic_attacks) - len(depressed_panicking) - len(anxious_panicking) + len(all_three),
+        'depressed_anxious': len(depressed_anxious) - len(all_three),
+        'depressed_panicking': len(depressed_panicking) - len(all_three),
+        'anxious_panicking': len(anxious_panicking) - len(all_three),
         'all_three': len(all_three),
     }
 
+    pie_data = create_pie_charts()
 
     return jsonify({
         'venn': venn_data,
