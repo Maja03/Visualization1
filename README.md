@@ -1,10 +1,19 @@
 # Student Mental Health Survey Data
 
-This dataset encompasses survey responses from students about their demographics, academic details, mental health status, and whether they have sought professional treatment. The data includes timestamps, gender, age, course, year of study, CGPA (Cumulative Grade Point Average), marital status, and mental health issues such as depression, anxiety, and panic attacks, as well as if they have sought specialist treatment.
+This project visualizes data from a survey of university students, focusing on mental health issues, demographic factors, and academic performance. The application helps identify patterns and trends to better understand the challenges faced by students.
+
+## Dataset Overviev
+
+The dataset contains responses about students’ demographics, academic details, and mental health, including:
+
+- **Demographic**s: Gender, age, marital status.
+- **Academics**: Course, year of study, CGPA (Cumulative Grade Point Average).
+- **Mental Health**: Self-reported conditions (depression, anxiety, panic attacks) and whether the student sought treatment.
+- **Timestamp**: Captures when the response was submitted.
 
 ## Key User Groups
 
-The primary user groups in this dataset are students differentiated by gender, age, academic course, and year of study. Here is a breakdown:
+The application focuses on the following user groups:
 
 - **Gender**: The dataset includes both male and female students.
 - **Age**: Ages range from 18 to 24, covering typical university-age students.
@@ -20,19 +29,22 @@ Understanding the user objectives involves examining the motivations behind the 
 - **Academic Performance**: By providing their CGPA, students' academic performance is highlighted, which could be correlated with their mental health status.
 - **Demographic Insights**: The data gives an overview of the demographic distribution of students, which can be used to identify patterns and trends among different groups.
 
-## Features
+## Features of Visualization Tool
 
-The dataset includes several key features that provide a comprehensive view of the students' academic and mental health status:
+1. **Venn Diagram of Mental Health Conditions**
+Shows overlaps between students with depression, anxiety, and panic attacks.
+Highlights intersectional challenges (e.g., students experiencing all three conditions).
 
-- **Timestamp**: Indicates the exact time when each survey was filled out, which can be useful for tracking the temporal distribution of responses.
-- **Gender**: Captures the gender of the students, allowing for gender-based analysis of mental health trends.
-- **Age**: Provides the age of the students, helping in understanding the age-related patterns in mental health and academic performance.
-- **Course and Year of Study**: These fields offer insights into the academic context of the students, which can be crucial for targeted support programs.
-- **CGPA**: Reflects the academic performance of the students, which can be analyzed in relation to their mental health status.
-- **Marital Status**: While most students are unmarried, this data can still provide useful insights into the life circumstances of the students.
-- **Mental Health Status**:
-  - **Depression**: Indicates whether a student has depression.
-  - **Anxiety**: Indicates whether a student has anxiety.
-  - **Panic Attack**: Indicates whether a student experiences panic attacks.
-- **Treatment Seeking**: Shows whether students have sought specialist treatment for their mental health issues.
+2. **Gender-Specific Pie Charts**
+Visualizes the proportion of males and females with various mental health conditions.
+Explores patterns in treatment-seeking behavior.
 
+3. **Interactive and User-Friendly UI**
+Users can switch between Venn diagrams and gender-specific pie charts.
+Charts dynamically update based on the backend data.
+
+## Technical Implementation
+
+- **Backend**: A two-tier architecture using Flask for serving data.
+- **Frontend**: D3.js for interactive and customizable visualizations.
+- **Data Transformation**: Binary encoding for mental health conditions and data cleaning for consistent analysis.

@@ -43,11 +43,6 @@ def create_pie_charts():
     male_counts = [len(subset[subset["Gender"] == "Male"]) for subset in subsets]
     female_counts = [len(subset[subset["Gender"] == "Female"]) for subset in subsets]
 
-    # Debugging output to ensure data consistency
-    print("Categories:", categories)
-    print("Male Counts:", male_counts)
-    print("Female Counts:", female_counts)
-
     return {'male_counts': male_counts, 'female_counts': female_counts, 'categories': categories}
 
 
